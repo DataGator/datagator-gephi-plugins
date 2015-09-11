@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: org.datagator.ext.gephi.deps
+OpenIDE-Module-Localizing-Bundle: org/datagator/ext/gephi/deps/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: org.datagator.ext.gephi.importer
+OpenIDE-Module-Implementation-Version: 2
+OpenIDE-Module-Localizing-Bundle: org/datagator/ext/gephi/importer/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+
