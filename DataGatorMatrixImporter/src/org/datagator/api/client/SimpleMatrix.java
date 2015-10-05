@@ -17,8 +17,6 @@
 package org.datagator.api.client;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.Iterator;
 
 /**
@@ -28,16 +26,10 @@ import java.util.Iterator;
  * @date 2015/09/07
  */
 @JsonDeserialize(using = SimpleMatrixDeserializer.class)
-public class SimpleMatrix
+class SimpleMatrix
     extends Entity
     implements Matrix
 {
-
-    public static SimpleMatrix create(Reader reader)
-        throws IOException
-    {
-        return (SimpleMatrix) Entity.create(reader);
-    }
 
     private final int rowsCount;
     private final int columnsCount;

@@ -22,9 +22,13 @@ package org.datagator.api.client;
  * @author LIU Yu <liuyu@opencps.net>
  * @date 2015/09/09
  */
-public interface RowBuffer extends Iterable<Object[]>
+public interface RowBuffer
+    extends Iterable<Object[]>
 {
+
     public void put(Object[] row);
+
     public void clear();
+
     public int size();
 }

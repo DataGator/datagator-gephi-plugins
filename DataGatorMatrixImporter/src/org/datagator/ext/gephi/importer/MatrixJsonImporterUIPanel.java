@@ -41,8 +41,6 @@ package org.datagator.ext.gephi.importer;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -55,6 +53,7 @@ import org.openide.util.NbBundle;
 
 /**
  * Main UI widget implementation.
+ *
  * This is the internal logic of the main UI panel.
  *
  * @author LIU Yu <liuyu@opencps.net>
@@ -64,21 +63,20 @@ class MatrixJsonImporterUIPanel
 {
 
     // column role options
-
     public static final String SOURCE_NODE = NbBundle.getMessage(
-        MatrixJsonImporterUI.class,
-        "MatrixJsonImporterUI.role.node_src");
+        MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.node_src");
     public static final String TARGET_NODE = NbBundle.getMessage(
-        MatrixJsonImporterUI.class,
-        "MatrixJsonImporterUI.role.node_tgt");
+        MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.node_tgt");
     public static final String NODE = NbBundle.getMessage(
         MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.node");
-    // public static final String EDGE_LABEL = NbBundle.getMessage(
-    //     MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.edge_lbl");
+    public static final String EDGE_LABEL = NbBundle.getMessage(
+        MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.edge_lbl");
     public static final String EDGE_WEIGHT = NbBundle.getMessage(
         MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.edge_wt");
     public static final String TIME = NbBundle.getMessage(
         MatrixJsonImporterUI.class, "MatrixJsonImporterUI.role.time");
+
+    public static final int ROLE_COL_INDEX = 1;
 
     private static class RoleEditorWidget
         extends JComboBox
@@ -123,8 +121,8 @@ class MatrixJsonImporterUIPanel
             final Object value, boolean isSelected, final int row,
             final int column)
         {
-            assert (column == 1);
-            
+            assert (column == ROLE_COL_INDEX);
+
             final RoleEditorWidget widget
                 = (RoleEditorWidget) super.getTableCellEditorComponent(
                     table, value, isSelected, row, column);
@@ -167,9 +165,9 @@ class MatrixJsonImporterUIPanel
             }
             // clear recurrences of roles beyond the upper limit
             TableModel model = table.getModel();
-            assert (model.getColumnCount() == 2);
+            assert (model.getColumnCount() == ROLE_COL_INDEX + 1);
             int observed = 0;
-            for (int r = 0, c = 1; r < model.getRowCount(); r++) {
+            for (int r = 0, c = ROLE_COL_INDEX; r < model.getRowCount(); r++) {
                 if (r == row) {
                     continue;
                 }
@@ -301,11 +299,11 @@ class MatrixJsonImporterUIPanel
         // clear previously-specified roles
         TableModel model = jTable1.getModel();
         assert (model.getColumnCount() == 2);
-        for (int r = 0, c = 1; r < model.getRowCount(); r++) {
+        for (int r = 0, c = ROLE_COL_INDEX; r < model.getRowCount(); r++) {
             model.setValueAt(null, r, c);
         }
         // update cell editor
-        TableColumn column = jTable1.getColumnModel().getColumn(1);
+        TableColumn column = jTable1.getColumnModel().getColumn(ROLE_COL_INDEX);
         column.setCellEditor(new RoleEditor(isDirectedGraph(), isDynamicGraph()));
     }
 
@@ -330,13 +328,13 @@ class MatrixJsonImporterUIPanel
             }
             for (int c = 0; c < columnsCount; c++) {
                 data[c][0] = matrixHeader[c];
-                data[c][1] = null;
+                data[c][ROLE_COL_INDEX] = null;
             }
         } else {
             // empty matrix header
             for (int c = 0; c < columnsCount; c++) {
                 data[c][0] = Integer.toString(c + 1);
-                data[c][1] = null;
+                data[c][ROLE_COL_INDEX] = null;
             }
         }
 
@@ -358,11 +356,13 @@ class MatrixJsonImporterUIPanel
                 false, true
             };
 
+            @Override
             public Class getColumnClass(int columnIndex)
             {
                 return types[columnIndex];
             }
 
+            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return canEdit[columnIndex];

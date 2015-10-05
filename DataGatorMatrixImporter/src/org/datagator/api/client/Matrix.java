@@ -26,8 +26,12 @@ import java.util.Iterator;
  */
 public interface Matrix
 {
+
     public int getRowsCount();
+
     public int getColumnsCount();
+
     public Matrix columnHeaders();
+
     public Iterator<Object[]> rows();
 }

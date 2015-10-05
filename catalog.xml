@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE module_updates PUBLIC "-//NetBeans//DTD Autoupdate Catalog 2.5//EN" "http://www.netbeans.org/dtds/autoupdate-catalog-2_5.dtd">
-<module_updates timestamp="00/10/11/11/9/2015">
-    <module codenamebase="org.datagator.ext.gephi.importer" distribution="org-datagator-ext-gephi-importer.nbm" downloadsize="0" homepage="https://github.com/DataGator/gephi-plugin" license="CCF76ADC" moduleauthor="LIU Yu" needsrestart="true" releasedate="2015/09/11">
-        <manifest AutoUpdate-Show-In-Client="true" OpenIDE-Module="org.datagator.ext.gephi.importer" OpenIDE-Module-Display-Category="Plugin" OpenIDE-Module-Implementation-Version="3" OpenIDE-Module-Java-Dependencies="Java &gt; 1.6" OpenIDE-Module-Long-Description="Importer for DataGator Matrix JSON files" OpenIDE-Module-Module-Dependencies="org.datagator.ext.gephi.deps &gt; 1.0, org.gephi.data.attributes.api &gt; 0.8.2, org.gephi.dynamic.api &gt; 0.8.2, org.gephi.io.importer.api &gt; 0.8.2, org.gephi.mostrecentfiles.api &gt; 0.8.2, org.gephi.ui.library.wrapper &gt; 0.8.2, org.gephi.utils.longtask &gt; 0.8.2, org.jdesktop.layout/1 &gt; 1.21.1, org.openide.awt &gt; 7.46.1, org.openide.filesystems &gt; 7.62.1, org.openide.util &gt; 8.25.2, org.openide.util.lookup &gt; 8.15.2" OpenIDE-Module-Name="DataGator Matrix Importer" OpenIDE-Module-Requires="org.openide.windows.WindowManager, org.openide.modules.ModuleFormat1" OpenIDE-Module-Short-Description="Importer for DataGator Matrix JSON files" OpenIDE-Module-Specification-Version="1.0.3"/>
+<module_updates timestamp="00/35/06/06/10/2015">
+    <module codenamebase="org.datagator.ext.gephi.importer" distribution="org-datagator-ext-gephi-importer.nbm" downloadsize="0" homepage="https://github.com/DataGator/gephi-plugin" license="CCF76ADC" moduleauthor="LIU Yu" needsrestart="true" releasedate="2015/10/06">
+        <manifest AutoUpdate-Show-In-Client="true" OpenIDE-Module="org.datagator.ext.gephi.importer" OpenIDE-Module-Display-Category="Plugin" OpenIDE-Module-Implementation-Version="7" OpenIDE-Module-Java-Dependencies="Java &gt; 1.6" OpenIDE-Module-Long-Description="Importer for DataGator Matrix JSON files" OpenIDE-Module-Module-Dependencies="org.gephi.data.attributes.api &gt; 0.8.2, org.gephi.dynamic.api &gt; 0.8.2, org.gephi.io.importer.api &gt; 0.8.2, org.gephi.mostrecentfiles.api &gt; 0.8.2, org.gephi.ui.library.wrapper &gt; 0.8.2, org.gephi.utils.longtask &gt; 0.8.2, org.jdesktop.layout/1 &gt; 1.21.1, org.openide.awt &gt; 7.46.1, org.openide.filesystems &gt; 7.62.1, org.openide.util &gt; 8.25.2, org.openide.util.lookup &gt; 8.15.2" OpenIDE-Module-Name="DataGator Matrix Importer" OpenIDE-Module-Requires="org.openide.windows.WindowManager, org.openide.modules.ModuleFormat1" OpenIDE-Module-Short-Description="Importer for DataGator Matrix JSON files" OpenIDE-Module-Specification-Version="1.0.7"/>
         <license name="CCF76ADC">                    GNU GENERAL PUBLIC LICENSE
             Version 3, 29 June 2007
             
@@ -677,18 +677,6 @@
             the library.  If this is what you want to do, use the GNU Lesser General
             Public License instead of this License.  But first, please read
             &lt;http://www.gnu.org/philosophy/why-not-lgpl.html&gt;.
-        </license>
-    </module>
-    <module codenamebase="org.datagator.ext.gephi.deps" distribution="org-datagator-ext-gephi-deps.nbm" downloadsize="0" homepage="https://github.com/FasterXML/" license="9CE611D7" moduleauthor="fasterxml.com" needsrestart="true" releasedate="2015/09/11">
-        <manifest AutoUpdate-Show-In-Client="true" OpenIDE-Module="org.datagator.ext.gephi.deps" OpenIDE-Module-Display-Category="Libraries" OpenIDE-Module-Implementation-Version="150911" OpenIDE-Module-Java-Dependencies="Java &gt; 1.6" OpenIDE-Module-Long-Description="Third-party libraries required by DataGator plugins" OpenIDE-Module-Name="DataGator Library Wrapper" OpenIDE-Module-Requires="org.openide.modules.ModuleFormat1" OpenIDE-Module-Short-Description="Third-party libraries required by DataGator plugins" OpenIDE-Module-Specification-Version="1.0"/>
-        <license name="9CE611D7">This copy of Jackson JSON processor streaming parser/generator is licensed under the
-            Apache (Software) License, version 2.0 ("the License").
-            See the License for details about distribution rights, and the
-            specific rights regarding derivate works.
-            
-            You may obtain a copy of the License at:
-            
-            http://www.apache.org/licenses/LICENSE-2.0
         </license>
     </module>
 </module_updates>

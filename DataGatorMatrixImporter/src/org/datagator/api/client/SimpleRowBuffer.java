@@ -26,12 +26,13 @@ import java.util.NoSuchElementException;
  * @author LIU Yu <liuyu@opencps.net>
  * @date 2015/09/09
  */
-public class SimpleRowBuffer
+class SimpleRowBuffer
     implements RowBuffer
 {
 
     private final ArrayList<Object[]> model = new ArrayList<Object[]>();
 
+    @Override
     public void put(Object[] row)
     {
         model.add(row);

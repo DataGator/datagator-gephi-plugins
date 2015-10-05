@@ -1,7 +1,6 @@
 This repository contains DataGator Gephi Plugins developed and maintained by the DataGator project:
 
 - DataGator Matrix Importer: Import DataGator Matrix files as Gephi Graph
-- DataGator Library Wrapper: Third-party libraries shared by all DataGator Gephi Plugins
 
 
 ## Getting started

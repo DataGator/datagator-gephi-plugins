@@ -52,9 +52,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TimeZone;
+import org.datagator.api.client.Entity;
 import org.datagator.api.client.Matrix;
-import org.datagator.api.client.SimpleMatrix;
 import org.gephi.data.attributes.api.AttributeColumn;
 import org.gephi.data.attributes.api.AttributeTable;
 import org.gephi.data.attributes.api.AttributeType;
@@ -72,8 +71,9 @@ import org.openide.util.NbBundle;
 
 /**
  * Implementation of the DataGator Matrix Importer.
+ *
  * This is the business logic layer of the importer, and an ETL for Gephi.
- * 
+ *
  * @author LIU Yu <liuyu@opencps.net>
  */
 public class MatrixJsonImporter
@@ -93,7 +93,37 @@ public class MatrixJsonImporter
         matrixRowType = new TypeReference<Object[]>()
         {
         };
-        calendar = Calendar.getInstance(TimeZone.getTimeZone("UCT"));
+        calendar = Calendar.getInstance();
+    }
+
+    private static Date[] parseTimeInterval(String interval)
+    {
+        final Date start;
+        final Date end;
+        if (interval.contains(",")) {
+            String[] tuple = interval.split(",");
+            start = parseDate(tuple[0], true);
+            end = parseDate(tuple[1], true);
+        } else {
+            start = parseDate(interval, true);
+            end = parseDate(interval, false);
+        }
+        return new Date[]{start, end};
+    }
+
+    private static Date parseDate(String date, boolean defaultFirst)
+    {
+        if (date.matches("^\\s*\\d{4}(?:-//d{1,2}(?:-//d{1,2})?)?\\s*$")) {
+            String[] tuple = date.trim().split("-");
+            int yyyy = Integer.parseInt(tuple[0]);
+            int mm = (tuple.length > 1) ? Integer.parseInt(tuple[1])
+                : ((defaultFirst) ? 0 : 11);
+            int dd = (tuple.length > 2) ? Integer.parseInt(tuple[2])
+                : ((defaultFirst) ? 1 : 31);
+            calendar.set(yyyy, mm, dd);
+            return calendar.getTime();
+        }
+        return null;
     }
 
     private Reader reader;
@@ -101,23 +131,25 @@ public class MatrixJsonImporter
     private Report report;
     private ProgressTicket progressTicket;
     private boolean cancel = false;
+    private AttributeColumn acWeight = null;
 
-    private ArrayList<Object[]> roleIndex = new ArrayList<Object[]>();
+    private final ArrayList<Object[]> roleIndex = new ArrayList<Object[]>();
     private boolean isDirected = true;
     private boolean isDynamic = true;
     private boolean isEdgeWeighted = true;
 
     private Matrix matrixHeaders = null;
-    private int rowsCount = 0;
-    private AttributeColumn acWeight = null;
+    private int matrixRowsCount = -1;
+    private int matrixColumnsCount = -1;
 
     public Matrix getMatrixHeaders()
     {
         if (this.matrixHeaders == null) {
             try {
-                Matrix matrix = SimpleMatrix.create(this.reader);
-                rowsCount = matrix.getRowsCount();
+                Matrix matrix = (Matrix) Entity.create(this.reader);
                 this.matrixHeaders = matrix.columnHeaders();
+                this.matrixRowsCount = matrix.getRowsCount();
+                this.matrixColumnsCount = matrix.getColumnsCount();
             } catch (IOException ioe) {
                 throw new RuntimeException(ioe);
             } catch (RuntimeException re) {
@@ -158,50 +190,33 @@ public class MatrixJsonImporter
         try {
             progressTicket.start();
 
-            // set graph edge default
-            if (isDirected) {
-                container.setEdgeDefault(EdgeDefault.DIRECTED);
-            } else {
-                container.setEdgeDefault(EdgeDefault.UNDIRECTED);
-            }
-
-            // set tiem format default
+            // set time format default
             container.setTimeFormat(TimeFormat.DATE);
 
-            // replace existing "Weight" attribute if type mismatch
+            // set graph edge default
+            EdgeDefault edgeType
+                = (isDirected) ? EdgeDefault.DIRECTED : EdgeDefault.UNDIRECTED;
+            container.setEdgeDefault(edgeType);
+
+            // replace "Weight" attribute column if type mismatch
             AttributeTable edgeTable
                 = container.getAttributeModel().getEdgeTable();
-            if (isDynamic) {
-                if (isEdgeWeighted) {
-                    if (edgeTable.hasColumn("weight")) {
-                        acWeight = edgeTable.getColumn("weight");
-                        if (acWeight.getType() != AttributeType.DYNAMIC_FLOAT) {
-                            edgeTable.removeColumn(acWeight);
-                            acWeight = null;
-                        }
-                    }
-                    if (acWeight == null) {
-                        acWeight = edgeTable.addColumn(
-                            "weight", AttributeType.DYNAMIC_FLOAT);
+            AttributeType acType = (isDynamic)
+                ? AttributeType.DYNAMIC_FLOAT : AttributeType.FLOAT;
+            if (isEdgeWeighted) {
+                if (edgeTable.hasColumn("weight")) {
+                    acWeight = edgeTable.getColumn("weight");
+                    if (acWeight.getType() != acType) {
+                        edgeTable.removeColumn(acWeight);
+                        acWeight = null;
                     }
                 }
-            } else {
-                if (isEdgeWeighted) {
-                    if (edgeTable.hasColumn("weight")) {
-                        acWeight = edgeTable.getColumn("weight");
-                        if (acWeight.getType() != AttributeType.FLOAT) {
-                            edgeTable.removeColumn(acWeight);
-                            acWeight = null;
-                        }
-                    }
-                    if (acWeight == null) {
-                        acWeight = edgeTable.addColumn(
-                            "weight", AttributeType.FLOAT);
-                    }
+                if (acWeight == null) {
+                    acWeight = edgeTable.addColumn("weight", acType);
                 }
             }
 
-            progressTicket.switchToDeterminate(rowsCount);
+            progressTicket.switchToDeterminate(matrixRowsCount);
             parseMatrix(this.reader);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -293,7 +308,7 @@ public class MatrixJsonImporter
                         if (nodeIndex < 1) {
                             nodeReversed = true;
                         }
-                    case UNDIRECTED_NODE:
+                    case NODE:
                         if (nodeIndex > 1) {
                             report.logIssue(new Issue(
                                 String.format(
@@ -355,22 +370,19 @@ public class MatrixJsonImporter
                 start = end = null;
             }
 
-            final float edgeWeight;
+            float edgeWeight = 0.0f;
 
             if (weightField instanceof Double) {
                 edgeWeight = ((Double) weightField).floatValue();
             } else if (weightField instanceof Integer) {
                 edgeWeight = ((Integer) weightField).floatValue();
             } else if (weightField != null) {
-                edgeWeight = 0.0f;
                 report.logIssue(new Issue(
                     String.format("Edge weight is non-numerical on line %s",
                         Integer.toString(rowIndex)),
                     Issue.Level.CRITICAL));
                 token = jp.nextToken(); // START_ARRAY
                 continue;
-            } else {
-                edgeWeight = 0.0f;
             }
 
             final NodeDraft source;
@@ -431,46 +443,17 @@ public class MatrixJsonImporter
         }
     }
 
-    private Date[] parseTimeInterval(String interval)
-    {
-        Date start = null;
-        Date end = null;
-        if (interval.contains(",")) {
-            String[] tuple = interval.split(",");
-            start = parseDate(tuple[0], true);
-            end = parseDate(tuple[1], true);
-        } else {
-            start = parseDate(interval, true);
-            end = parseDate(interval, false);
-        }
-        return new Date[]{start, end};
-    }
-
-    private Date parseDate(String date, boolean defaultFirst)
-    {
-        if (date.matches("^\\s*\\d{4}(?:-//d{1,2}(?:-//d{1,2})?)?\\s*$")) {
-            String[] tuple = date.trim().split("-");
-            int yyyy = Integer.parseInt(tuple[0]);
-            int mm = (tuple.length > 1) ? Integer.parseInt(tuple[1])
-                : ((defaultFirst) ? 0 : 11);
-            int dd = (tuple.length > 2) ? Integer.parseInt(tuple[2])
-                : ((defaultFirst) ? 1 : 31);
-            calendar.set(yyyy, mm, dd);
-            return calendar.getTime();
-        }
-        return null;
-    }
-
     private void parseMatrix(Reader reader)
         throws IOException
     {
         JsonParser jp = json.createParser(reader);
 
-        String kind = null;
-        int rowsCount = -1;
-        int columnsCount = -1;
+        String kind;
         int bodyRow = -1;
         int bodyColumn = -1;
+
+        matrixRowsCount = -1;
+        matrixColumnsCount = -1;
 
         JsonToken token = jp.nextToken(); // START_OBJECT
         if (!token.equals(JsonToken.START_OBJECT)) {
@@ -535,7 +518,7 @@ public class MatrixJsonImporter
                         Issue.Level.CRITICAL));
                     return;
                 }
-                rowsCount = jp.getIntValue();
+                matrixRowsCount = jp.getIntValue();
             } else if (name.equals("columnsCount")) {
                 if (!token.equals(JsonToken.VALUE_NUMBER_INT)) {
                     report.logIssue(new Issue(
@@ -543,7 +526,7 @@ public class MatrixJsonImporter
                         Issue.Level.CRITICAL));
                     return;
                 }
-                columnsCount = jp.getIntValue();
+                matrixColumnsCount = jp.getIntValue();
             } else {
                 report.logIssue(new Issue(
                     String.format("Unexpected property %s", name),
@@ -553,13 +536,13 @@ public class MatrixJsonImporter
             token = jp.nextToken(); // FIELD_NAME
         }
 
-        if (!(0 <= bodyRow && bodyRow <= rowsCount)) {
+        if (!(0 <= bodyRow && bodyRow <= matrixRowsCount)) {
             report.logIssue(new Issue(
                 "Invalid Matrix shape",
                 Issue.Level.CRITICAL));
         }
 
-        if (!(0 <= bodyColumn && bodyColumn <= columnsCount)) {
+        if (!(0 <= bodyColumn && bodyColumn <= matrixColumnsCount)) {
             report.logIssue(new Issue(
                 "Invalid Matrix shape",
                 Issue.Level.CRITICAL));
@@ -569,6 +552,6 @@ public class MatrixJsonImporter
     public static enum ColumnRoleType
     {
 
-        SOURCE_NODE, TARGET_NODE, UNDIRECTED_NODE, EDGE_WEIGHT, EDGE_LABEL, TIME
+        SOURCE_NODE, TARGET_NODE, NODE, EDGE_WEIGHT, EDGE_LABEL, TIME
     }
 }

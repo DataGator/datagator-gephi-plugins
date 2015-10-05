@@ -45,7 +45,7 @@ public abstract class Entity
 {
 
     protected static final JsonFactory json;
-    
+
     static {
         json = new JsonFactory();
         ObjectMapper mapper = new ObjectMapper();
@@ -57,9 +57,10 @@ public abstract class Entity
 
     @JsonCreator
     protected Entity(@JsonProperty("kind") String kind)
+        throws IllegalArgumentException
     {
         if (!kind.startsWith("datagator#")) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                 String.format("Invalid entity kind '%s'", kind));
         }
         this.kind = kind.substring("datagator#".length());

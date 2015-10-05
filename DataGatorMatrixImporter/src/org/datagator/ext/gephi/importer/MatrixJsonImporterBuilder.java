@@ -47,6 +47,7 @@ import org.openide.util.lookup.ServiceProvider;
 
 /**
  * FileImporterBuilder implementation.
+ *
  * The builder is responsible for creating instances of the importer.
  *
  * @author LIU Yu <liuyu@opencps.net>

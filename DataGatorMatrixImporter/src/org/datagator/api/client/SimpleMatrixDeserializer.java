@@ -72,6 +72,7 @@ class SimpleMatrixDeserializer
         }
     }
 
+    @Override
     public Matrix deserialize(JsonParser jp, DeserializationContext cntx)
         throws IOException, JsonProcessingException
     {
